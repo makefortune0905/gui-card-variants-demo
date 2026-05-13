@@ -1,0 +1,1931 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GUI Card Variant Lab</title>
+    <style>
+      :root {
+        --page: #f6f4ef;
+        --surface: #ffffff;
+        --surface-2: #f5f5f5;
+        --surface-3: #eeeeef;
+        --text: #09090b;
+        --muted: #3f3f46;
+        --subtle: #808087;
+        --line: rgba(10, 10, 10, 0.08);
+        --line-strong: rgba(10, 10, 10, 0.12);
+        --brand: #2563eb;
+        --brand-soft: #eff6ff;
+        --danger: #ef4444;
+        --danger-soft: #fff0f0;
+        --warn: #f97315;
+        --warn-soft: #fff7e6;
+        --info: #3b82f6;
+        --info-soft: #edf4ff;
+        --success: #22c55e;
+        --success-soft: #ebf8f1;
+        --purple: #8a38f5;
+        --radius: 8px;
+        --shadow: 0 1px 2px rgba(10, 10, 10, 0.04);
+        --card-max-pc: 160px;
+        --card-max-app: 148px;
+        color-scheme: light;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-width: 320px;
+        color: var(--text);
+        background: var(--page);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+        letter-spacing: 0;
+      }
+
+      button,
+      input,
+      select {
+        font: inherit;
+      }
+
+      button {
+        border: 0;
+      }
+
+      .page-shell {
+        width: min(1280px, calc(100vw - 40px));
+        margin: 0 auto;
+        padding: 28px 0 40px;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 24px;
+        margin-bottom: 20px;
+      }
+
+      .title-block {
+        max-width: 780px;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #8a38f5;
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 18px;
+      }
+
+      .eyebrow::before {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--purple);
+        content: "";
+      }
+
+      h1 {
+        margin: 8px 0 8px;
+        font-size: 24px;
+        line-height: 32px;
+        font-weight: 750;
+      }
+
+      .lead {
+        margin: 0;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 22px;
+      }
+
+      .control-cluster {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .segmented {
+        display: inline-flex;
+        align-items: center;
+        padding: 3px;
+        gap: 2px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--surface);
+        box-shadow: 0 1px 0 rgba(31, 35, 41, 0.04);
+      }
+
+      .segmented button {
+        min-height: 28px;
+        padding: 0 10px;
+        border-radius: 7px;
+        color: var(--muted);
+        background: transparent;
+        cursor: pointer;
+      }
+
+      .segmented button[aria-pressed="true"] {
+        color: var(--text);
+        background: var(--surface-3);
+        font-weight: 650;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 360px;
+        gap: 18px;
+        align-items: start;
+      }
+
+      .workspace,
+      .side-panel,
+      .matrix-band,
+      .types-band {
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.88);
+        box-shadow: none;
+      }
+
+      .workspace {
+        min-width: 0;
+        overflow: hidden;
+      }
+
+      .canvas-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .canvas-title {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+      }
+
+      .canvas-title strong {
+        font-size: 14px;
+        line-height: 20px;
+      }
+
+      .canvas-title span {
+        color: var(--subtle);
+        font-size: 12px;
+        line-height: 18px;
+      }
+
+      .viewport-meter {
+        flex: 0 0 auto;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .preview-stage {
+        padding: 24px;
+        overflow-x: auto;
+        background:
+          linear-gradient(90deg, rgba(138, 56, 245, 0.1) 1px, transparent 1px),
+          linear-gradient(180deg, rgba(138, 56, 245, 0.1) 1px, transparent 1px),
+          #8e8e8e;
+        background-size: 76px 76px;
+      }
+
+      .device {
+        width: min(100%, 760px);
+        margin: 0 auto;
+        padding: 18px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.05);
+        box-shadow: none;
+        transition:
+          width 180ms ease,
+          padding 180ms ease;
+      }
+
+      body[data-platform="app"] .device {
+        width: min(280px, 100%);
+        padding: 12px;
+        border-radius: 18px;
+      }
+
+      .device-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 0 0 12px;
+      }
+
+      .dots {
+        display: flex;
+        gap: 6px;
+      }
+
+      .dots i {
+        display: block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--line-strong);
+      }
+
+      .device-label {
+        color: var(--subtle);
+        font-size: 12px;
+      }
+
+      .stack {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(260px, 1fr));
+        gap: 10px;
+      }
+
+      body[data-platform="app"] .stack {
+        grid-template-columns: 1fr;
+      }
+
+      .agent-card {
+        --tone: var(--info);
+        --tone-soft: var(--info-soft);
+        position: relative;
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr) auto;
+        gap: 8px;
+        max-height: var(--card-max-pc);
+        min-height: 86px;
+        padding: 10px 11px;
+        overflow: hidden;
+        border: 0;
+        border-radius: var(--radius);
+        background: var(--surface);
+        box-shadow: var(--shadow);
+      }
+
+      body[data-platform="app"] .agent-card {
+        max-height: var(--card-max-app);
+        padding: 10px;
+      }
+
+      .agent-card[data-tone="danger"] {
+        --tone: var(--danger);
+        --tone-soft: var(--danger-soft);
+      }
+
+      .agent-card[data-tone="warning"] {
+        --tone: var(--warn);
+        --tone-soft: var(--warn-soft);
+      }
+
+      .agent-card[data-tone="success"] {
+        --tone: var(--success);
+        --tone-soft: var(--success-soft);
+      }
+
+      .agent-card[data-tone="neutral"] {
+        --tone: #5b6472;
+        --tone-soft: #f1f3f6;
+      }
+
+      .agent-card::before {
+        display: none;
+      }
+
+      .card-head {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        align-items: start;
+        gap: 6px;
+      }
+
+      .status-dot {
+        width: 5px;
+        height: 5px;
+        margin-top: 6px;
+        border-radius: 50%;
+        background: var(--tone);
+        box-shadow: none;
+      }
+
+      .heading {
+        min-width: 0;
+      }
+
+      .heading h2 {
+        margin: 0;
+        overflow: hidden;
+        color: #262626;
+        font-size: 11px;
+        line-height: 16px;
+        font-weight: 650;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .heading p {
+        margin: 1px 0 0;
+        overflow: hidden;
+        color: #8b8b8f;
+        font-size: 10px;
+        line-height: 14px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .icon-button {
+        display: inline-grid;
+        place-items: center;
+        width: 18px;
+        height: 18px;
+        border-radius: 6px;
+        color: var(--subtle);
+        background: transparent;
+        cursor: pointer;
+      }
+
+      .icon-button:hover {
+        background: var(--surface-2);
+        color: var(--text);
+      }
+
+      .card-body {
+        min-height: 0;
+        overflow: auto;
+        padding-right: 2px;
+        color: var(--muted);
+        font-size: 10px;
+        line-height: 15px;
+      }
+
+      .card-body::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      .card-body::-webkit-scrollbar-thumb {
+        border-radius: 99px;
+        background: #c8ced7;
+      }
+
+      .compact-body {
+        display: -webkit-box;
+        overflow: hidden;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+      }
+
+      .action-row {
+        display: grid;
+        grid-auto-columns: minmax(0, 1fr);
+        grid-auto-flow: column;
+        align-items: center;
+        gap: 6px;
+        min-height: 22px;
+      }
+
+      body[data-platform="app"] .action-row {
+        grid-template-columns: 1fr;
+        grid-auto-flow: row;
+      }
+
+      @container card-size (max-width: 280px) {
+        .action-row {
+          grid-template-columns: 1fr;
+          grid-auto-flow: row;
+        }
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        min-width: 0;
+        min-height: 22px;
+        padding: 0 9px;
+        border: 1px solid rgba(10, 10, 10, 0.1);
+        border-radius: 6px;
+        color: var(--text);
+        background: var(--surface);
+        cursor: pointer;
+        font-size: 10px;
+        font-weight: 600;
+        line-height: 14px;
+        transition:
+          background 140ms ease,
+          border-color 140ms ease,
+          color 140ms ease;
+      }
+
+      .btn:hover {
+        border-color: rgba(10, 10, 10, 0.14);
+        background: rgba(10, 10, 10, 0.03);
+      }
+
+      .btn.primary {
+        border-color: rgba(10, 10, 10, 0.1);
+        color: var(--text);
+        background: var(--surface);
+      }
+
+      .btn.ghost {
+        border-color: rgba(10, 10, 10, 0.1);
+        color: var(--muted);
+      }
+
+      .btn.danger {
+        border-color: rgba(229, 72, 77, 0.36);
+        color: var(--danger);
+        background: var(--danger-soft);
+      }
+
+      .btn:focus-visible,
+      .icon-button:focus-visible,
+      .segmented button:focus-visible {
+        outline: 2px solid rgba(47, 124, 246, 0.38);
+        outline-offset: 2px;
+      }
+
+      .choice-row {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 6px;
+        margin: 6px 0;
+      }
+
+      .choice {
+        display: grid;
+        gap: 2px;
+        padding: 7px 6px;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        color: var(--muted);
+        background: var(--surface);
+      }
+
+      .choice strong {
+        color: var(--text);
+        font-size: 10px;
+      }
+
+      .choice span {
+        font-size: 9px;
+      }
+
+      .choice[aria-selected="true"] {
+        border-color: rgba(47, 124, 246, 0.55);
+        background: var(--brand-soft);
+      }
+
+      .content-block {
+        margin: 8px 0;
+        border-radius: 7px;
+      }
+
+      .text-block {
+        padding: 7px 8px;
+        background: var(--surface-2);
+      }
+
+      .quote-block {
+        padding: 7px 8px;
+        border-left: 3px solid var(--tone);
+        background: var(--tone-soft);
+        color: #3c424a;
+      }
+
+      .code-block {
+        margin: 8px 0;
+        padding: 7px 8px;
+        overflow: auto;
+        border: 1px solid #d8dee7;
+        border-radius: 7px;
+        color: #2c3645;
+        background: #f5f7fa;
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+        font-size: 10px;
+        line-height: 15px;
+        white-space: pre;
+      }
+
+      .steps {
+        display: grid;
+        gap: 5px;
+        padding: 0;
+        margin: 6px 0;
+        list-style: none;
+      }
+
+      .steps li {
+        display: grid;
+        grid-template-columns: 16px minmax(0, 1fr);
+        gap: 6px;
+        align-items: start;
+      }
+
+      .steps b {
+        display: inline-grid;
+        place-items: center;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        color: var(--tone);
+        background: var(--tone-soft);
+        font-size: 10px;
+      }
+
+      .segment-copy {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin: 8px 0;
+      }
+
+      .segment-copy span {
+        padding: 3px 6px;
+        border-radius: 6px;
+        color: #3d4654;
+        background: var(--surface-2);
+      }
+
+      .inline-link {
+        color: var(--info);
+        font-weight: 650;
+        text-decoration: none;
+      }
+
+      .slot-placeholder {
+        display: grid;
+        place-items: center;
+        min-height: 42px;
+        border: 1px dashed #b9c2cf;
+        border-radius: 7px;
+        color: var(--subtle);
+        background: repeating-linear-gradient(
+          -45deg,
+          #fafbfc,
+          #fafbfc 8px,
+          #f0f2f5 8px,
+          #f0f2f5 16px
+        );
+      }
+
+      .matrix-band,
+      .types-band,
+      .primitives-band {
+        margin-top: 18px;
+        padding: 16px;
+      }
+
+      .section-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+
+      .section-head h2 {
+        margin: 0;
+        font-size: 16px;
+        line-height: 24px;
+      }
+
+      .section-head span {
+        color: var(--subtle);
+        font-size: 12px;
+      }
+
+      .variant-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .mini-card {
+        display: grid;
+        gap: 10px;
+        min-height: 156px;
+        padding: 11px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--surface);
+      }
+
+      .mini-card strong {
+        font-size: 13px;
+        line-height: 20px;
+      }
+
+      .mini-card p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 18px;
+      }
+
+      .mini-tag-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        align-self: end;
+      }
+
+      .mini-tag {
+        padding: 3px 7px;
+        border-radius: 99px;
+        color: #4b5563;
+        background: var(--surface-2);
+        font-size: 11px;
+      }
+
+      .content-types {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .type-chip,
+      .primitive-card {
+        display: grid;
+        gap: 4px;
+        padding: 10px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--surface);
+      }
+
+      .type-chip strong,
+      .primitive-card strong {
+        font-size: 12px;
+      }
+
+      .type-chip span,
+      .primitive-card span {
+        color: var(--muted);
+        font-size: 11px;
+        line-height: 16px;
+      }
+
+      .primitive-groups {
+        display: grid;
+        gap: 14px;
+      }
+
+      .primitive-group {
+        display: grid;
+        gap: 8px;
+      }
+
+      .primitive-group h3 {
+        margin: 0;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 18px;
+      }
+
+      .primitive-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .primitive-card {
+        min-height: 90px;
+      }
+
+      .primitive-demo {
+        display: grid;
+        gap: 6px;
+        margin-top: 6px;
+        padding: 8px;
+        border-radius: 8px;
+        background: #f7f7f8;
+      }
+
+      .demo-line {
+        height: 6px;
+        border-radius: 99px;
+        background: rgba(10, 10, 10, 0.12);
+      }
+
+      .demo-line.short {
+        width: 56%;
+      }
+
+      .demo-line.mid {
+        width: 76%;
+      }
+
+      .demo-kv {
+        display: grid;
+        grid-template-columns: 44px 1fr;
+        gap: 5px;
+        align-items: center;
+        color: var(--subtle);
+        font-size: 9px;
+      }
+
+      .demo-kv b {
+        color: var(--muted);
+        font-weight: 650;
+      }
+
+      .demo-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+      }
+
+      .demo-tags i,
+      .demo-pill {
+        display: inline-flex;
+        align-items: center;
+        min-height: 16px;
+        padding: 0 6px;
+        border-radius: 99px;
+        color: #52525b;
+        background: #ffffff;
+        font-size: 9px;
+        font-style: normal;
+      }
+
+      .demo-step {
+        display: grid;
+        grid-template-columns: 14px 1fr;
+        gap: 5px;
+        align-items: center;
+        color: var(--muted);
+        font-size: 9px;
+      }
+
+      .demo-step b {
+        display: grid;
+        place-items: center;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        color: #16a34a;
+        background: #ecfdf3;
+        font-size: 8px;
+      }
+
+      .demo-code {
+        overflow: hidden;
+        padding: 6px;
+        border: 1px solid rgba(10, 10, 10, 0.08);
+        border-radius: 6px;
+        color: #3f3f46;
+        background: #fff;
+        font-family: "SFMono-Regular", Consolas, monospace;
+        font-size: 9px;
+        line-height: 13px;
+        white-space: nowrap;
+      }
+
+      .demo-quote {
+        padding: 6px 7px;
+        border-left: 2px solid #a1a1aa;
+        border-radius: 5px;
+        color: var(--muted);
+        background: #fff;
+        font-size: 9px;
+        line-height: 13px;
+      }
+
+      .demo-options {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 5px;
+      }
+
+      .demo-option {
+        min-height: 24px;
+        padding: 4px 5px;
+        border: 1px solid rgba(10, 10, 10, 0.08);
+        border-radius: 6px;
+        background: #fff;
+        color: var(--muted);
+        font-size: 9px;
+      }
+
+      .demo-option.active {
+        border-color: #93c5fd;
+        background: #eff6ff;
+        color: #1d4ed8;
+      }
+
+      .demo-file {
+        display: grid;
+        grid-template-columns: 22px 1fr;
+        gap: 6px;
+        align-items: center;
+        padding: 6px;
+        border-radius: 6px;
+        background: #fff;
+      }
+
+      .demo-file i {
+        display: grid;
+        place-items: center;
+        width: 22px;
+        height: 22px;
+        border-radius: 5px;
+        color: #ef4444;
+        background: #fee2e2;
+        font-size: 8px;
+        font-style: normal;
+        font-weight: 700;
+      }
+
+      .demo-progress {
+        height: 6px;
+        overflow: hidden;
+        border-radius: 99px;
+        background: rgba(10, 10, 10, 0.08);
+      }
+
+      .demo-progress span {
+        display: block;
+        width: 64%;
+        height: 100%;
+        border-radius: inherit;
+        background: #09090b;
+      }
+
+      .demo-notice {
+        display: flex;
+        align-items: flex-start;
+        gap: 5px;
+        padding: 6px;
+        border-radius: 6px;
+        color: #3f3f46;
+        background: #fff7ed;
+        font-size: 9px;
+        line-height: 13px;
+      }
+
+      .breakpoint-band {
+        margin-top: 18px;
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.88);
+      }
+
+      .breakpoint-lab {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 320px;
+        gap: 16px;
+        align-items: start;
+      }
+
+      .lab-stage {
+        display: grid;
+        place-items: center;
+        min-height: 320px;
+        padding: 24px;
+        border-radius: 10px;
+        background:
+          linear-gradient(90deg, rgba(138, 56, 245, 0.1) 1px, transparent 1px),
+          linear-gradient(180deg, rgba(138, 56, 245, 0.1) 1px, transparent 1px),
+          #8e8e8e;
+        background-size: 76px 76px;
+      }
+
+      .lab-card {
+        width: min(100%, var(--lab-card-width, 430px));
+        padding: 10px;
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: var(--shadow);
+        transition: width 160ms ease;
+      }
+
+      .lab-card .heading h2 {
+        white-space: normal;
+      }
+
+      .lab-action-zone {
+        width: 100%;
+        margin-top: 10px;
+        padding-top: 8px;
+        border-top: 1px dashed rgba(10, 10, 10, 0.12);
+      }
+
+      .lab-actions {
+        display: grid;
+        gap: 6px;
+      }
+
+      .lab-actions[data-layout="row"] {
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(0, 1fr);
+      }
+
+      .lab-actions[data-layout="column"] {
+        grid-template-columns: 1fr;
+      }
+
+      .lab-actions .btn {
+        min-height: 24px;
+      }
+
+      .lab-rule {
+        display: grid;
+        gap: 8px;
+        margin-top: 12px;
+      }
+
+      .rule-row {
+        display: grid;
+        grid-template-columns: 74px minmax(0, 1fr) auto;
+        gap: 8px;
+        align-items: center;
+        color: var(--muted);
+        font-size: 11px;
+        line-height: 16px;
+      }
+
+      .rule-track {
+        position: relative;
+        container: card-size / inline-size;
+        height: 8px;
+        overflow: hidden;
+        border-radius: 99px;
+        background: rgba(10, 10, 10, 0.07);
+      }
+
+      .rule-track span {
+        display: block;
+        height: 100%;
+        border-radius: inherit;
+        background: rgba(10, 10, 10, 0.32);
+      }
+
+      .lab-result {
+        margin-top: 12px;
+        padding: 10px;
+        border-radius: 8px;
+        color: var(--muted);
+        background: #f7f7f8;
+        font-size: 12px;
+        line-height: 18px;
+      }
+
+      .lab-result strong {
+        color: var(--text);
+      }
+
+      .primitive-card code {
+        width: fit-content;
+        padding: 2px 6px;
+        border-radius: 5px;
+        color: #52525b;
+        background: rgba(10, 10, 10, 0.04);
+        font-size: 10px;
+      }
+
+      .side-panel {
+        position: sticky;
+        top: 18px;
+        padding: 16px;
+      }
+
+      .side-panel h2 {
+        margin: 0 0 12px;
+        font-size: 16px;
+        line-height: 24px;
+      }
+
+      .field {
+        display: grid;
+        gap: 7px;
+        margin-bottom: 14px;
+      }
+
+      .field label {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 650;
+      }
+
+      .select,
+      .range-wrap {
+        width: 100%;
+        min-height: 34px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--surface);
+      }
+
+      .select {
+        padding: 0 9px;
+        color: var(--text);
+      }
+
+      .range-wrap {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 10px;
+        align-items: center;
+        padding: 0 9px;
+      }
+
+      .range-wrap input {
+        width: 100%;
+      }
+
+      .range-wrap span {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .spec {
+        display: grid;
+        gap: 8px;
+        margin-top: 16px;
+        padding-top: 14px;
+        border-top: 1px solid var(--line);
+      }
+
+      .spec-row {
+        display: grid;
+        grid-template-columns: 92px minmax(0, 1fr);
+        gap: 10px;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 18px;
+      }
+
+      .spec-row b {
+        color: var(--text);
+      }
+
+      .code-panel {
+        margin-top: 16px;
+        overflow: auto;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #f8fafc;
+      }
+
+      .code-panel pre {
+        margin: 0;
+        padding: 12px;
+        color: #374151;
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+        font-size: 11px;
+        line-height: 17px;
+      }
+
+      [data-filtered="true"] {
+        display: none;
+      }
+
+      @media (max-width: 1080px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        .side-panel {
+          position: static;
+        }
+
+        .variant-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 720px) {
+        .page-shell {
+          width: min(100vw - 24px, 520px);
+          padding-top: 16px;
+        }
+
+        .topbar,
+        .canvas-head,
+        .section-head {
+          align-items: stretch;
+          flex-direction: column;
+        }
+
+        h1 {
+          font-size: 22px;
+          line-height: 30px;
+        }
+
+        .preview-stage {
+          padding: 12px;
+        }
+
+        .variant-grid,
+        .content-types,
+        .primitive-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .choice-row {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body data-platform="pc" data-density="normal">
+    <main class="page-shell">
+      <header class="topbar">
+        <div class="title-block">
+          <div class="eyebrow">GUI Card Variant Lab</div>
+          <h1>Agent 操作反馈卡片样式与内容变体</h1>
+          <p class="lead">
+            基于 Figma 中的 <strong>chat-error-msg</strong> 容器和 <strong>Content_Type</strong>
+            内容组件，按 shadcn Button / IconButton / Slot 的语义还原小型反馈卡；扩展文本块、代码块、引用块、操作选择、列表与 Slot 场景。
+          </p>
+        </div>
+        <div class="control-cluster" aria-label="全局预览控制">
+          <div class="segmented" role="group" aria-label="平台">
+            <button type="button" data-platform="pc" aria-pressed="true">PC</button>
+            <button type="button" data-platform="app" aria-pressed="false">App</button>
+          </div>
+          <div class="segmented" role="group" aria-label="密度">
+            <button type="button" data-density="normal" aria-pressed="true">常规</button>
+            <button type="button" data-density="compact" aria-pressed="false">紧凑</button>
+          </div>
+        </div>
+      </header>
+
+      <div class="layout">
+        <section class="workspace" aria-label="组件预览">
+          <div class="canvas-head">
+          <div class="canvas-title">
+            <strong>Responsive preview</strong>
+              <span>App 最大宽 280 且按钮纵向；PC 最大宽 430，280-430 横向，小于等于 280 纵向。</span>
+            </div>
+            <div class="viewport-meter" id="viewportMeter">PC width 760 / max height 160</div>
+          </div>
+          <div class="preview-stage">
+            <div class="device">
+              <div class="device-toolbar" aria-hidden="true">
+                <div class="dots"><i></i><i></i><i></i></div>
+                <span class="device-label" id="deviceLabel">Desktop container · card max 430</span>
+              </div>
+              <div class="stack" id="previewStack">
+                <article class="agent-card" data-tone="danger" data-kind="base">
+                  <header class="card-head">
+                    <span class="status-dot"></span>
+                    <div class="heading">
+                      <h2>出现阻塞型异常，生成文案失败</h2>
+                      <p>File "src/main.py", line 31, in http_run · timeout_first</p>
+                    </div>
+                    <button class="icon-button" type="button" aria-label="收起">⌄</button>
+                  </header>
+                  <div class="card-body">
+                    <p class="compact-body">
+                      错误信息来自异步任务执行链路。保留必要 traceback 摘要，隐藏低价值重复行，
+                      引导用户优先重试或查看日志，避免把操作按钮挤出首屏。
+                    </p>
+                  </div>
+                  <footer class="action-row">
+                    <button class="btn">复制</button>
+                    <button class="btn primary">重试</button>
+                    <button class="btn ghost">取消</button>
+                  </footer>
+                </article>
+
+                <article class="agent-card" data-tone="warning" data-kind="choice">
+                  <header class="card-head">
+                    <span class="status-dot"></span>
+                    <div class="heading">
+                      <h2>需要你选择后续操作</h2>
+                      <p>Agent 检测到多个可行方案，建议先选择执行范围。</p>
+                    </div>
+                    <button class="icon-button" type="button" aria-label="更多">⋯</button>
+                  </header>
+                  <div class="card-body">
+                    <div class="choice-row" role="listbox" aria-label="操作选择">
+                      <button class="choice" type="button" aria-selected="true">
+                        <strong>仅修复当前文件</strong>
+                        <span>风险最低</span>
+                      </button>
+                      <button class="choice" type="button" aria-selected="false">
+                        <strong>同步修复同类文件</strong>
+                        <span>覆盖更完整</span>
+                      </button>
+                      <button class="choice" type="button" aria-selected="false">
+                        <strong>先生成变更计划</strong>
+                        <span>适合不确定时</span>
+                      </button>
+                    </div>
+                  </div>
+                  <footer class="action-row">
+                    <button class="btn primary">确认</button>
+                    <button class="btn ghost">稍后</button>
+                  </footer>
+                </article>
+
+                <article class="agent-card" data-tone="info" data-kind="rich">
+                  <header class="card-head">
+                    <span class="status-dot"></span>
+                    <div class="heading">
+                      <h2>包含文本、代码与引用的复合内容</h2>
+                      <p>扩展 Slot 场景：内容丰富但操作不被淹没。</p>
+                    </div>
+                    <button class="icon-button" type="button" aria-label="展开">⌄</button>
+                  </header>
+                  <div class="card-body">
+                    <div class="content-block text-block">
+                      文本块用于解释上下文，适合 1-3 行摘要。长文默认进入内部滚动，不拉高整张卡片。
+                    </div>
+                    <pre class="code-block">async function retryTask(taskId) {
+  await agent.resume(taskId, { strategy: "safe" });
+}</pre>
+                    <blockquote class="content-block quote-block">
+                      引用块用于展示用户原话、PRD 摘录或系统建议，保持和正文明确区隔。
+                    </blockquote>
+                  </div>
+                  <footer class="action-row">
+                    <button class="btn">复制代码</button>
+                    <button class="btn primary">继续</button>
+                  </footer>
+                </article>
+
+                <article class="agent-card" data-tone="success" data-kind="list">
+                  <header class="card-head">
+                    <span class="status-dot"></span>
+                    <div class="heading">
+                      <h2>操作已完成，等待用户验收</h2>
+                      <p>完成态保留低噪音视觉，突出下一步。</p>
+                    </div>
+                    <button class="icon-button" type="button" aria-label="关闭">×</button>
+                  </header>
+                  <div class="card-body">
+                    <ul class="steps">
+                      <li><b>1</b><span>已更新卡片容器响应式规则。</span></li>
+                      <li><b>2</b><span>已补充文本块、代码块、引用块和 Slot 占位。</span></li>
+                      <li><b>3</b><span>建议 App 卡片最大宽 280px，按钮保持纵向，避免首屏挤压。</span></li>
+                    </ul>
+                    <div class="segment-copy">
+                      <span>配置完成</span>
+                      <span>等待确认</span>
+                      <span>可回滚</span>
+                    </div>
+                  </div>
+                  <footer class="action-row">
+                    <button class="btn">查看详情</button>
+                    <button class="btn primary">确认</button>
+                  </footer>
+                </article>
+
+                <article class="agent-card" data-tone="neutral" data-kind="slot">
+                  <header class="card-head">
+                    <span class="status-dot"></span>
+                    <div class="heading">
+                      <h2>Slot 内容未接入</h2>
+                      <p>支持业务后续插入表格、图片、权限条、表单等结构。</p>
+                    </div>
+                    <button class="icon-button" type="button" aria-label="设置">⚙</button>
+                  </header>
+                  <div class="card-body">
+                    <div class="slot-placeholder">Slot swaps with your content</div>
+                    <p>
+                      当 Slot 内容过高时，容器只开放内部滚动；底部按钮在视觉上固定于卡片底部。
+                    </p>
+                  </div>
+                  <footer class="action-row">
+                    <button class="btn">预览 Slot</button>
+                    <button class="btn primary">插入</button>
+                  </footer>
+                </article>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <aside class="side-panel" aria-label="Props 映射">
+          <h2>Props playground</h2>
+          <div class="field">
+            <label for="scenarioFilter">只看某类变体</label>
+            <select class="select" id="scenarioFilter">
+              <option value="all">全部变体</option>
+              <option value="base">基础反馈</option>
+              <option value="choice">操作选择</option>
+              <option value="rich">富文本内容</option>
+              <option value="list">可展开列表</option>
+              <option value="slot">Slot 插槽</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="pcHeight">PC 最大高度</label>
+            <div class="range-wrap">
+              <input id="pcHeight" type="range" min="104" max="260" value="160" />
+              <span id="pcHeightValue">160px</span>
+            </div>
+          </div>
+          <div class="field">
+            <label for="appHeight">App 最大高度</label>
+            <div class="range-wrap">
+              <input id="appHeight" type="range" min="104" max="240" value="148" />
+              <span id="appHeightValue">148px</span>
+            </div>
+          </div>
+
+          <div class="spec">
+            <div class="spec-row"><b>容器</b><span>chat-error-msg，白底、8px radius、无左条，仅小圆点 tone。</span></div>
+            <div class="spec-row"><b>内容</b><span>Content_Type + Slot，默认 10-11px 小字号，body 可内滚。</span></div>
+            <div class="spec-row"><b>动作</b><span>映射 shadcn Button outline / ghost / tiny，App 端始终纵向。</span></div>
+            <div class="spec-row"><b>高度</b><span>PC/App 分别配置 max-height，贴近一屏多卡密度。</span></div>
+          </div>
+
+          <div class="code-panel" aria-label="TypeScript props">
+            <pre>export type CardTone =
+  | "danger" | "warning" | "info" | "success" | "neutral";
+
+export type ContentType =
+  | "subtitle" | "buttons-2" | "buttons-3"
+  | "buttons-4" | "operation-choice"
+  | "collapsible-list" | "segmented-text"
+  | "text-block" | "code-block" | "quote-block"
+  | "slot";
+
+export interface AgentActionCardProps {
+  tone?: CardTone;
+  title: React.ReactNode;
+  subtitle?: React.ReactNode;
+  contentType?: ContentType;
+  collapsible?: boolean;
+  defaultOpen?: boolean;
+  maxHeight?: { pc?: number; app?: number };
+  actions?: ActionItem[];
+  children?: React.ReactNode;
+}
+
+// shadcn usage in this repo:
+// import { Button } from "@coze-coding/core-components/button";
+// import { IconButton } from "@coze-coding/core-components/icon-button";
+// <Button variant="outline" size="2xs" />
+// <Button variant="ghost" size="2xs" />
+// <IconButton variant="ghost" size="2xs" /></pre>
+          </div>
+        </aside>
+      </div>
+
+      <section class="matrix-band" aria-label="变体矩阵">
+        <div class="section-head">
+          <h2>建议补充的业务变体</h2>
+          <span>保留 Figma 已有枚举，同时扩展内容块能力。</span>
+        </div>
+        <div class="variant-grid">
+          <div class="mini-card">
+            <strong>基础反馈 / 副文案</strong>
+            <p>短错误、提示、完成态。正文 1-3 行，按钮 0-2 个。</p>
+            <div class="mini-tag-row"><span class="mini-tag">observed</span><span class="mini-tag">compact</span></div>
+          </div>
+          <div class="mini-card">
+            <strong>按钮组 2/3/4</strong>
+            <p>根据风险和设备切换布局；App 端按钮自动换行或堆叠。</p>
+            <div class="mini-tag-row"><span class="mini-tag">observed</span><span class="mini-tag">responsive</span></div>
+          </div>
+          <div class="mini-card">
+            <strong>可展开收起列表</strong>
+            <p>适合步骤、权限项、批量结果；默认只露出摘要和主操作。</p>
+            <div class="mini-tag-row"><span class="mini-tag">observed</span><span class="mini-tag">scroll body</span></div>
+          </div>
+          <div class="mini-card">
+            <strong>操作选择</strong>
+            <p>把 “选项 + 解释 + 确认按钮” 组合在一张卡里。</p>
+            <div class="mini-tag-row"><span class="mini-tag">observed</span><span class="mini-tag">selectable</span></div>
+          </div>
+          <div class="mini-card">
+            <strong>分段文本</strong>
+            <p>适合把 Agent 结论拆成标签化短句，降低阅读负担。</p>
+            <div class="mini-tag-row"><span class="mini-tag">observed</span><span class="mini-tag">scan</span></div>
+          </div>
+          <div class="mini-card">
+            <strong>文本 / 代码 / 引用块</strong>
+            <p>新增扩展，用统一 Slot 容器承载 PRD 摘录、报错代码、用户原话。</p>
+            <div class="mini-tag-row"><span class="mini-tag">new</span><span class="mini-tag">slot</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="breakpoint-band" aria-label="按钮断点实验区">
+        <div class="section-head">
+          <h2>Container breakpoint 容器断点实验区</h2>
+          <span>App 固定纵向；PC 在容器内容宽大于 280px 时横向，小于等于 280px 时纵向。</span>
+        </div>
+        <div class="breakpoint-lab">
+          <div class="lab-stage">
+            <article class="lab-card agent-card" id="labCard" data-tone="warning">
+              <header class="card-head">
+                <span class="status-dot"></span>
+                <div class="heading">
+                  <h2>需要你确认后续操作</h2>
+                  <p>PC 跟随容器宽度切换；App 始终纵向。</p>
+                </div>
+                <button class="icon-button" type="button" aria-label="更多">⋯</button>
+              </header>
+              <div class="card-body">
+                <p>
+                  按钮本身始终弹性填充容器，并且全部使用描边样式。
+                  PC 卡片最大 430px，按钮区大于 280px 横排，小于等于 280px 纵排。
+                </p>
+              </div>
+              <div class="lab-action-zone" id="labActionZone">
+                <div class="lab-actions" id="labActions" data-layout="row"></div>
+              </div>
+            </article>
+          </div>
+
+          <aside class="side-panel" style="position: static">
+            <h2>断点控制</h2>
+            <div class="field">
+              <label for="buttonCount">按钮数量</label>
+              <select class="select" id="buttonCount">
+                <option value="1">1 个按钮</option>
+                <option value="2">2 个按钮</option>
+                <option value="3" selected>3 个按钮</option>
+                <option value="4">4 个按钮</option>
+                <option value="5">5 个按钮</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="containerWidth">外层卡片宽度</label>
+              <div class="range-wrap">
+                <input id="containerWidth" type="range" min="220" max="430" value="430" />
+                <span id="containerWidthValue">430px</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="labPlatform">实验平台</label>
+              <select class="select" id="labPlatform">
+                <option value="pc" selected>PC：按 280px 容器断点</option>
+                <option value="app">App：最大 280px，始终纵向</option>
+              </select>
+            </div>
+            <div class="lab-rule" aria-label="断点说明">
+              <div class="rule-row">
+                <b>App</b>
+                <div class="rule-track"><span style="width: 65%"></span></div>
+                <span>≤280px · 纵向</span>
+              </div>
+              <div class="rule-row">
+                <b>PC</b>
+                <div class="rule-track"><span style="width: 65%"></span></div>
+                <span>≤280px · 纵向</span>
+              </div>
+              <div class="rule-row">
+                <b>PC</b>
+                <div class="rule-track"><span style="width: 100%"></span></div>
+                <span>280-430px · 横向</span>
+              </div>
+            </div>
+            <div class="lab-result" id="labResult">
+              当前：<strong>PC · 容器 430px · 横向等宽</strong>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="types-band" aria-label="内容类型">
+        <div class="section-head">
+          <h2>Content_Type 扩展清单</h2>
+          <span>未来可以直接转成 Props 枚举。</span>
+        </div>
+        <div class="content-types">
+          <div class="type-chip"><strong>subtitle</strong><span>副文案，适合摘要和轻提示。</span></div>
+          <div class="type-chip"><strong>segmentedText</strong><span>分段文本，适合标签化结论。</span></div>
+          <div class="type-chip"><strong>buttonGroup</strong><span>2/3/4 按钮，支持主次危险层级。</span></div>
+          <div class="type-chip"><strong>operationChoice</strong><span>选项卡式选择，支持单选确认。</span></div>
+          <div class="type-chip"><strong>collapsibleList</strong><span>折叠列表，首屏只露高价值信息。</span></div>
+          <div class="type-chip"><strong>textBlock</strong><span>说明块，支持多段但默认内部滚动。</span></div>
+          <div class="type-chip"><strong>codeBlock</strong><span>代码块，等宽字体、横向滚动。</span></div>
+          <div class="type-chip"><strong>quoteBlock</strong><span>引用块，承载原话、文档摘录、系统建议。</span></div>
+        </div>
+      </section>
+
+      <section class="primitives-band" aria-label="内容区元素原子">
+        <div class="section-head">
+          <h2>Content primitives 内容原子库</h2>
+          <span>比 Content_Type 更底层，可自由组合成不同业务卡片。</span>
+        </div>
+        <div class="primitive-groups">
+          <div class="primitive-group">
+            <h3>信息表达</h3>
+            <div class="primitive-grid">
+              <div class="primitive-card">
+                <strong>正文段落</strong>
+                <span>最基础的说明文本，支持 1-3 行摘要与长文内滚。</span>
+                <code>paragraph</code>
+                <div class="primitive-demo">
+                  <div class="demo-line"></div>
+                  <div class="demo-line mid"></div>
+                  <div class="demo-line short"></div>
+                </div>
+              </div>
+              <div class="primitive-card">
+                <strong>辅助说明</strong>
+                <span>低权重补充信息，例如来源、时间、执行上下文。</span>
+                <code>caption</code>
+                <div class="primitive-demo">
+                  <span class="demo-pill">来自 LocalAgent · 12:30</span>
+                  <div class="demo-line short"></div>
+                </div>
+              </div>
+              <div class="primitive-card">
+                <strong>键值信息</strong>
+                <span>展示模型、环境、文件、权限、状态等短字段。</span>
+                <code>keyValue</code>
+                <div class="primitive-demo">
+                  <div class="demo-kv"><b>模型</b><span>GPT-5.4</span></div>
+                  <div class="demo-kv"><b>权限</b><span>仅当前项目</span></div>
+                  <div class="demo-kv"><b>状态</b><span>等待确认</span></div>
+                </div>
+              </div>
+              <div class="primitive-card">
+                <strong>标签组</strong>
+                <span>把结论拆成可扫读的状态标签或能力标签。</span>
+                <code>tagList</code>
+                <div class="primitive-demo">
+                  <div class="demo-tags">
+                    <i>可重试</i>
+                    <i>低风险</i>
+                    <i>需授权</i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="primitive-group">
+            <h3>结构化内容</h3>
+            <div class="primitive-grid">
+              <div class="primitive-card">
+                <strong>步骤列表</strong>
+                <span>适合授权流程、修复流程、执行结果清单。</span>
+                <code>stepList</code>
+                <div class="primitive-demo">
+                  <div class="demo-step"><b>1</b><span>检查权限范围</span></div>
+                  <div class="demo-step"><b>2</b><span>生成授权链接</span></div>
+                  <div class="demo-step"><b>3</b><span>等待用户确认</span></div>
+                </div>
+              </div>
+              <div class="primitive-card">
+                <strong>检查项列表</strong>
+                <span>用于前置条件、权限勾选、任务完成状态。</span>
+                <code>checkList</code>
+                <div class="primitive-demo">
+                  <div class="demo-step"><b>✓</b><span>已连接工作区</span></div>
+                  <div class="demo-step"><b>✓</b><span>已读取项目配置</span></div>
+                  <div class="demo-step"><b>!</b><span>需要补充权限</span></div>
+                </div>
+              </div>
+              <div class="primitive-card">
+                <strong>迷你表格</strong>
+                <span>2-3 列以内，展示差异、费用、权限范围。</span>
+                <code>miniTable</code>
+                <div class="primitive-demo">
+                  <div class="demo-kv"><b>读</b><span>项目文件、设置</span></div>
+                  <div class="demo-kv"><b>写</b><span>仅当前分支</span></div>
+                  <div class="demo-kv"><b>有效期</b><span>24 小时</span></div>
+                </div>
+              </div>
+              <div class="primitive-card">
+                <strong>折叠明细</strong>
+                <span>把 traceback、批量结果、低频细节收起来。</span>
+                <code>details</code>
+                <div class="primitive-demo">
+                  <span class="demo-pill">展开 12 条明细</span>
+                  <div class="demo-line mid"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="primitive-group">
+            <h3>代码与引用</h3>
+            <div class="primitive-grid">
+              <div class="primitive-card">
+                <strong>代码块</strong>
+                <span>等宽字体、可横向滚动，适合命令、配置、片段。</span>
+                <code>codeBlock</code>
+                <div class="primitive-demo">
+                  <div class="demo-code">await agent.run({ safe: true })</div>
+                </div>
+              </div>
+              <div class="primitive-card">
+                <strong>命令行输出</strong>
+                <span>比代码块更强调日志截断、错误高亮和复制。</span>
+                <code>terminalOutput</code>
+                <div class="primitive-demo">
+                  <div class="demo-code">$ pnpm test<br />1 failed · timeout</div>
+                </div>
+              </div>
+              <div class="primitive-card">
+                <strong>引用块</strong>
+                <span>展示用户原话、文档摘录、PRD 原文。</span>
+                <code>quote</code>
+                <div class="primitive-demo">
+                  <div class="demo-quote">“只允许本次会话访问项目设置。”</div>
+                </div>
+              </div>
+              <div class="primitive-card">
+                <strong>Diff 摘要</strong>
+                <span>展示新增/删除/修改数量，不直接塞完整 diff。</span>
+                <code>diffSummary</code>
+                <div class="primitive-demo">
+                  <div class="demo-tags">
+                    <i>+24</i>
+                    <i>-8</i>
+                    <i>3 files</i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="primitive-group">
+            <h3>选择与输入</h3>
+            <div class="primitive-grid">
+              <div class="primitive-card">
+                <strong>单选项</strong>
+                <span>选择一个执行策略、授权范围或目标对象。</span>
+                <code>radioOptions</code>
+                <div class="primitive-demo">
+                  <div class="demo-options">
+                    <div class="demo-option active">仅本次</div>
+                    <div class="demo-option">始终允许</div>
+                  </div>
+                </div>
+              </div>
+              <div class="primitive-card">
+                <strong>多选项</strong>
+                <span>批量选择文件、权限、Agent、资源范围。</span>
+                <code>checkboxOptions</code>
+                <div class="primitive-demo">
+                  <div class="demo-step"><b>✓</b><span>读取设置</span></div>
+                  <div class="demo-step"><b> </b><span>修改配置</span></div>
+                </div>
+              </div>
+              <div class="primitive-card">
+                <strong>短输入</strong>
+                <span>用于路径、变量名、确认短语等低复杂度输入。</span>
+                <code>inlineInput</code>
+                <div class="primitive-demo">
+                  <div class="demo-option active">/src/app/config.ts</div>
+                </div>
+              </div>
+              <div class="primitive-card">
+                <strong>分段控制</strong>
+                <span>在模式之间切换，例如安全/完整、自动/手动。</span>
+                <code>segmentedControl</code>
+                <div class="primitive-demo">
+                  <div class="demo-options">
+                    <div class="demo-option active">安全</div>
+                    <div class="demo-option">完整</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="primitive-group">
+            <h3>媒体与产物</h3>
+            <div class="primitive-grid">
+              <div class="primitive-card">
+                <strong>文件胶囊</strong>
+                <span>显示文件名、类型、大小、打开或下载动作。</span>
+                <code>filePill</code>
+                <div class="primitive-demo">
+                  <div class="demo-file">
+                    <i>TS</i>
+                    <div>
+                      <div class="demo-line mid"></div>
+                      <div class="demo-line short"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="primitive-card">
+                <strong>图片缩略图</strong>
+                <span>用于截图、生成图、视觉验收预览。</span>
+                <code>thumbnail</code>
+                <div class="primitive-demo">
+                  <div class="slot-placeholder" style="min-height: 46px">Preview</div>
+                </div>
+              </div>
+              <div class="primitive-card">
+                <strong>进度条</strong>
+                <span>展示执行进度、上传进度或批处理完成度。</span>
+                <code>progress</code>
+                <div class="primitive-demo">
+                  <div class="demo-progress"><span></span></div>
+                  <span class="demo-pill">64% · 处理中</span>
+                </div>
+              </div>
+              <div class="primitive-card">
+                <strong>链接预览</strong>
+                <span>外部页面、文档、PR、任务单的轻量入口。</span>
+                <code>linkPreview</code>
+                <div class="primitive-demo">
+                  <div class="demo-file">
+                    <i>↗</i>
+                    <div>
+                      <div class="demo-line"></div>
+                      <div class="demo-line short"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="primitive-group">
+            <h3>系统反馈</h3>
+            <div class="primitive-grid">
+              <div class="primitive-card">
+                <strong>状态横幅</strong>
+                <span>成功、警告、错误、信息提示，适合短反馈。</span>
+                <code>statusNotice</code>
+                <div class="primitive-demo">
+                  <div class="demo-notice">● 已完成授权，可继续执行。</div>
+                </div>
+              </div>
+              <div class="primitive-card">
+                <strong>风险提示</strong>
+                <span>在危险操作前解释影响范围和回滚条件。</span>
+                <code>riskNotice</code>
+                <div class="primitive-demo">
+                  <div class="demo-notice">! 将修改 3 个配置项，请确认。</div>
+                </div>
+              </div>
+              <div class="primitive-card">
+                <strong>等待态</strong>
+                <span>加载、排队、处理中，避免卡片空白。</span>
+                <code>loadingState</code>
+                <div class="primitive-demo">
+                  <div class="demo-progress"><span style="width: 38%"></span></div>
+                  <span class="demo-pill">Agent 正在处理</span>
+                </div>
+              </div>
+              <div class="primitive-card">
+                <strong>空状态</strong>
+                <span>Slot 未接入、没有结果、无需操作时使用。</span>
+                <code>emptyState</code>
+                <div class="primitive-demo">
+                  <div class="slot-placeholder" style="min-height: 42px">暂无内容</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const body = document.body;
+      const viewportMeter = document.querySelector("#viewportMeter");
+      const deviceLabel = document.querySelector("#deviceLabel");
+      const stack = document.querySelector("#previewStack");
+      const filter = document.querySelector("#scenarioFilter");
+      const pcHeight = document.querySelector("#pcHeight");
+      const appHeight = document.querySelector("#appHeight");
+      const pcHeightValue = document.querySelector("#pcHeightValue");
+      const appHeightValue = document.querySelector("#appHeightValue");
+      const buttonCount = document.querySelector("#buttonCount");
+      const containerWidth = document.querySelector("#containerWidth");
+      const containerWidthValue = document.querySelector("#containerWidthValue");
+      const labPlatform = document.querySelector("#labPlatform");
+      const labCard = document.querySelector("#labCard");
+      const labActionZone = document.querySelector("#labActionZone");
+      const labActions = document.querySelector("#labActions");
+      const labResult = document.querySelector("#labResult");
+      const containerBreakpoint = 280;
+
+      function setPressed(selector, value) {
+        document.querySelectorAll(selector).forEach((button) => {
+          const key = button.dataset.platform ? "platform" : "density";
+          button.setAttribute("aria-pressed", String(button.dataset[key] === value));
+        });
+      }
+
+      function updateMeter() {
+        const isApp = body.dataset.platform === "app";
+        viewportMeter.textContent = isApp
+          ? `App width 280 / max height ${appHeight.value}`
+          : `PC width 760 / max height ${pcHeight.value}`;
+        deviceLabel.textContent = isApp
+          ? "App container · card max 280"
+          : "Desktop container · card max 430";
+      }
+
+      function updateButtonLab() {
+        const count = Number(buttonCount.value);
+        const platform = labPlatform.value;
+        const requestedCardWidth = Number(containerWidth.value);
+        const maxCardWidth = platform === "app" ? 280 : 430;
+        const cardWidth = Math.min(requestedCardWidth, maxCardWidth);
+        labCard.style.setProperty("--lab-card-width", `${cardWidth}px`);
+        const visibleCount = count > 3 ? 3 : count;
+        const labels =
+          count > 3
+            ? ["主操作", "次操作", "更多"]
+            : Array.from({ length: count }, (_, index) =>
+                index === 0 ? "主操作" : index === count - 1 ? "取消" : "操作",
+              );
+
+        const actionAreaWidth = Math.round(labActionZone.getBoundingClientRect().width);
+        const layout =
+          platform === "app" || actionAreaWidth <= containerBreakpoint ? "column" : "row";
+
+        labActions.dataset.layout = layout;
+        labActions.innerHTML = labels
+          .map((label, index) => {
+            const variant = index === 0 ? "primary" : index === labels.length - 1 ? "ghost" : "";
+            const suffix = count > 3 && label === "更多" ? " ···" : "";
+            return `<button class="btn ${variant}" type="button">${label}${suffix}</button>`;
+          })
+          .join("");
+
+        containerWidthValue.textContent =
+          requestedCardWidth === cardWidth
+            ? `${cardWidth}px`
+            : `${requestedCardWidth}px → ${cardWidth}px`;
+        const reduced = count > 3 ? " · 已收敛为 3 个入口" : "";
+        const layoutText = layout === "row" ? "横向等宽" : "纵向等宽";
+        const ruleText =
+          platform === "app"
+            ? "App 规则：卡片最大宽 280px，按钮始终纵向。"
+            : "PC 规则：卡片最大宽 430px，按钮区 > 280px 横向，≤ 280px 纵向。";
+        labResult.innerHTML = `当前：<strong>${platform.toUpperCase()} · ${count} 个按钮 · 容器 ${cardWidth}px · 按钮区 ${actionAreaWidth}px · ${layoutText}${reduced}</strong><br />${ruleText}`;
+      }
+
+      document.querySelectorAll("button[data-platform]").forEach((button) => {
+        button.addEventListener("click", () => {
+          body.dataset.platform = button.dataset.platform;
+          setPressed("button[data-platform]", button.dataset.platform);
+          updateMeter();
+        });
+      });
+
+      document.querySelectorAll("button[data-density]").forEach((button) => {
+        button.addEventListener("click", () => {
+          body.dataset.density = button.dataset.density;
+          setPressed("button[data-density]", button.dataset.density);
+          stack.style.gap = button.dataset.density === "compact" ? "8px" : "12px";
+        });
+      });
+
+      filter.addEventListener("change", () => {
+        document.querySelectorAll(".agent-card").forEach((card) => {
+          const hidden = filter.value !== "all" && card.dataset.kind !== filter.value;
+          card.dataset.filtered = String(hidden);
+        });
+      });
+
+      pcHeight.addEventListener("input", () => {
+        document.documentElement.style.setProperty("--card-max-pc", `${pcHeight.value}px`);
+        pcHeightValue.textContent = `${pcHeight.value}px`;
+        updateMeter();
+      });
+
+      appHeight.addEventListener("input", () => {
+        document.documentElement.style.setProperty("--card-max-app", `${appHeight.value}px`);
+        appHeightValue.textContent = `${appHeight.value}px`;
+        updateMeter();
+      });
+
+      buttonCount.addEventListener("change", updateButtonLab);
+      containerWidth.addEventListener("input", updateButtonLab);
+      labPlatform.addEventListener("change", updateButtonLab);
+      window.addEventListener("resize", updateButtonLab);
+
+      document.querySelectorAll(".choice").forEach((choice) => {
+        choice.addEventListener("click", () => {
+          choice.parentElement.querySelectorAll(".choice").forEach((item) => {
+            item.setAttribute("aria-selected", "false");
+          });
+          choice.setAttribute("aria-selected", "true");
+        });
+      });
+
+      updateMeter();
+      updateButtonLab();
+    </script>
+  </body>
+</html>
