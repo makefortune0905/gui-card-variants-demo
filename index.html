@@ -116,6 +116,37 @@
         gap: 10px;
       }
 
+      .primary-tabs {
+        display: flex;
+        gap: 6px;
+        margin: 0 0 16px;
+        padding: 4px;
+        width: fit-content;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.82);
+      }
+
+      .primary-tab {
+        min-height: 32px;
+        padding: 0 14px;
+        border-radius: 8px;
+        color: var(--muted);
+        background: transparent;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 650;
+      }
+
+      .primary-tab[aria-selected="true"] {
+        color: var(--text);
+        background: var(--surface-3);
+      }
+
+      .tab-panel[hidden] {
+        display: none;
+      }
+
       .segmented {
         display: inline-flex;
         align-items: center;
@@ -1002,6 +1033,143 @@
         font-size: 10px;
       }
 
+      .dev-panel {
+        display: grid;
+        gap: 18px;
+      }
+
+      .dev-hero,
+      .dev-section {
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.9);
+      }
+
+      .dev-hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1.05fr) minmax(300px, 0.95fr);
+        gap: 20px;
+        padding: 18px;
+      }
+
+      .dev-section {
+        padding: 16px;
+      }
+
+      .dev-section h2,
+      .dev-hero h2 {
+        margin: 0 0 8px;
+        font-size: 17px;
+        line-height: 25px;
+      }
+
+      .dev-section p,
+      .dev-hero p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 21px;
+      }
+
+      .rule-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 12px;
+      }
+
+      .rule-card,
+      .atom-card {
+        display: grid;
+        gap: 7px;
+        padding: 12px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--surface);
+      }
+
+      .rule-card strong,
+      .atom-card strong {
+        font-size: 13px;
+        line-height: 19px;
+      }
+
+      .rule-card span,
+      .atom-card span,
+      .atom-card li {
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 18px;
+      }
+
+      .rule-card code,
+      .atom-card code {
+        width: fit-content;
+        padding: 2px 6px;
+        border-radius: 5px;
+        color: #52525b;
+        background: rgba(10, 10, 10, 0.04);
+        font-size: 11px;
+      }
+
+      .atom-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 12px;
+      }
+
+      .atom-card ul {
+        display: grid;
+        gap: 4px;
+        margin: 0;
+        padding-left: 16px;
+      }
+
+      .structure-diagram {
+        display: grid;
+        gap: 8px;
+        align-content: start;
+      }
+
+      .structure-layer {
+        display: grid;
+        grid-template-columns: 92px minmax(0, 1fr);
+        gap: 10px;
+        align-items: start;
+        padding: 10px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--surface);
+      }
+
+      .structure-layer b {
+        font-size: 12px;
+      }
+
+      .structure-layer span {
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 18px;
+      }
+
+      .dev-code {
+        overflow: auto;
+        margin-top: 12px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #f8fafc;
+      }
+
+      .dev-code pre {
+        margin: 0;
+        padding: 12px;
+        color: #374151;
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+        font-size: 11px;
+        line-height: 17px;
+      }
+
       .side-panel {
         position: sticky;
         top: 18px;
@@ -1111,6 +1279,12 @@
         .variant-grid {
           grid-template-columns: repeat(2, minmax(0, 1fr));
         }
+
+        .dev-hero,
+        .rule-grid,
+        .atom-grid {
+          grid-template-columns: 1fr;
+        }
       }
 
       @media (max-width: 720px) {
@@ -1137,7 +1311,8 @@
 
         .variant-grid,
         .content-types,
-        .primitive-grid {
+        .primitive-grid,
+        .atom-grid {
           grid-template-columns: 1fr;
         }
 
@@ -1170,6 +1345,16 @@
         </div>
       </header>
 
+      <nav class="primary-tabs" aria-label="一级内容切换">
+        <button class="primary-tab" type="button" id="tab-demo" data-tab-target="demo-panel" aria-selected="true">
+          DEMO
+        </button>
+        <button class="primary-tab" type="button" id="tab-dev" data-tab-target="dev-panel" aria-selected="false">
+          研发看这里
+        </button>
+      </nav>
+
+      <section class="tab-panel" id="demo-panel" aria-labelledby="tab-demo">
       <div class="layout">
         <section class="workspace" aria-label="组件预览">
           <div class="canvas-head">
@@ -1357,11 +1542,9 @@
   | "danger" | "warning" | "info" | "success" | "neutral";
 
 export type ContentType =
-  | "subtitle" | "buttons-2" | "buttons-3"
-  | "buttons-4" | "operation-choice"
-  | "collapsible-list" | "segmented-text"
-  | "text-block" | "code-block" | "quote-block"
-  | "slot";
+  | "bodyText" | "inlineLink" | "helperText"
+  | "codeBlock" | "textPanel" | "iconTitle"
+  | "statusBanner" | "inlineAction" | "slot";
 
 export interface AgentActionCardProps {
   tone?: CardTone;
@@ -1378,9 +1561,9 @@ export interface AgentActionCardProps {
 // shadcn usage in this repo:
 // import { Button } from "@coze-coding/core-components/button";
 // import { IconButton } from "@coze-coding/core-components/icon-button";
-// <Button variant="outline" size="2xs" />
-// <Button variant="ghost" size="2xs" />
-// <IconButton variant="ghost" size="2xs" /></pre>
+// &lt;Button variant="outline" size="2xs" /&gt;
+// &lt;Button variant="ghost" size="2xs" /&gt;
+// &lt;IconButton variant="ghost" size="2xs" /&gt;</pre>
           </div>
         </aside>
       </div>
@@ -1504,25 +1687,25 @@ export interface AgentActionCardProps {
 
       <section class="types-band" aria-label="内容类型">
         <div class="section-head">
-          <h2>Content_Type 扩展清单</h2>
-          <span>未来可以直接转成 Props 枚举。</span>
+          <h2>Content_Type 最终命名</h2>
+          <span>和「研发看这里」保持同一套 Props 枚举。</span>
         </div>
         <div class="content-types">
-          <div class="type-chip"><strong>subtitle</strong><span>副文案，适合摘要和轻提示。</span></div>
-          <div class="type-chip"><strong>segmentedText</strong><span>分段文本，适合标签化结论。</span></div>
-          <div class="type-chip"><strong>buttonGroup</strong><span>2/3/4 按钮，支持主次危险层级。</span></div>
-          <div class="type-chip"><strong>operationChoice</strong><span>选项卡式选择，支持单选确认。</span></div>
-          <div class="type-chip"><strong>collapsibleList</strong><span>折叠列表，首屏只露高价值信息。</span></div>
-          <div class="type-chip"><strong>textBlock</strong><span>说明块，支持多段但默认内部滚动。</span></div>
-          <div class="type-chip"><strong>codeBlock</strong><span>代码块，等宽字体、横向滚动。</span></div>
-          <div class="type-chip"><strong>quoteBlock</strong><span>引用块，承载原话、文档摘录、系统建议。</span></div>
+          <div class="type-chip"><strong>bodyText</strong><span>正文段落，不加框，用于普通说明和摘要。</span></div>
+          <div class="type-chip"><strong>inlineLink</strong><span>正文中的轻量跳转，不做成大按钮。</span></div>
+          <div class="type-chip"><strong>helperText</strong><span>低权重辅助说明，例如来源、时间、上下文。</span></div>
+          <div class="type-chip"><strong>codeBlock</strong><span>代码、命令、日志，支持横向滚动和复制。</span></div>
+          <div class="type-chip"><strong>textPanel</strong><span>带弱底色的纯文本块，用于需要区隔的说明。</span></div>
+          <div class="type-chip"><strong>iconTitle</strong><span>Icon + 短标题，用于小节或状态标题。</span></div>
+          <div class="type-chip"><strong>statusBanner</strong><span>状态横幅，用于成功、警告、处理中等反馈。</span></div>
+          <div class="type-chip"><strong>inlineAction</strong><span>内容区对象操作，例如路径、资源项和小按钮。</span></div>
         </div>
       </section>
 
       <section class="primitives-band" aria-label="内容区元素原子">
         <div class="section-head">
-          <h2>Content primitives 内容原子库</h2>
-          <span>比 Content_Type 更底层，可自由组合成不同业务卡片。</span>
+          <h2>Content primitives 发散参考</h2>
+          <span>这里保留更多业务可能性；正式交付以「研发看这里」的 8 类命名为准。</span>
         </div>
         <div class="primitive-groups">
           <div class="primitive-group">
@@ -1795,10 +1978,217 @@ export interface AgentActionCardProps {
           </div>
         </div>
       </section>
+      </section>
+
+      <section class="tab-panel dev-panel" id="dev-panel" aria-labelledby="tab-dev" hidden>
+        <section class="dev-hero" aria-label="研发使用总览">
+          <div>
+            <h2>Agent GUI Card 是一套容器协议，不是一张业务定制卡</h2>
+            <p>
+              业务只传 tone、标题、副标题、内容原子和 actions。容器统一控制白底、圆角、间距、
+              最大高度、内部滚动、按钮布局和 PC/App 响应式规则。研发接入时不要在业务侧重新定义卡片样式。
+            </p>
+            <div class="dev-code" aria-label="推荐组件结构">
+              <pre>&lt;AgentGuiCard
+  tone="danger"
+  title="出现阻塞型异常"
+  subtitle="File src/main.py line 31..."
+  maxHeight={{ pc: 180, app: 200 }}
+  actions={[
+    { label: "复制", variant: "outline" },
+    { label: "重试", variant: "outline", priority: "primary" },
+    { label: "取消", variant: "outline" },
+  ]}
+&gt;
+  &lt;CardBodyText&gt;错误信息来自异步任务执行链路...&lt;/CardBodyText&gt;
+&lt;/AgentGuiCard&gt;</pre>
+            </div>
+          </div>
+          <div class="structure-diagram" aria-label="卡片结构">
+            <div class="structure-layer">
+              <b>Container</b>
+              <span>只负责视觉、尺寸、滚动和响应式，是跨端规则的唯一来源。</span>
+            </div>
+            <div class="structure-layer">
+              <b>Header</b>
+              <span>状态点/图标、标题、副标题、右侧图标按钮。只说明“发生了什么”。</span>
+            </div>
+            <div class="structure-layer">
+              <b>Content</b>
+              <span>承载内容原子。解释原因、状态、上下文、选项或业务 Slot。</span>
+            </div>
+            <div class="structure-layer">
+              <b>Footer</b>
+              <span>只放底部动作按钮。按钮全部描边，布局由容器宽度决定。</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="dev-section" aria-label="内容原子命名">
+          <h2>Content primitives 内容原子命名</h2>
+          <p>内容区最终收敛为下面 8 类。建议组件名用 PascalCase，Props / contentType 用 camelCase。</p>
+          <div class="atom-grid">
+            <div class="atom-card">
+              <strong>正文段落</strong>
+              <code>bodyText / CardBodyText</code>
+              <span>纯文本正文，不加框。用于 1-3 行解释、错误摘要、普通说明。</span>
+              <ul>
+                <li>默认继承正文色和行高</li>
+                <li>长内容进入 Content 内滚</li>
+              </ul>
+            </div>
+            <div class="atom-card">
+              <strong>超链接</strong>
+              <code>inlineLink / CardLink</code>
+              <span>正文中的轻量跳转。用于文档、仓库、任务单、日志入口。</span>
+              <ul>
+                <li>只强调可点击文本</li>
+                <li>不要做成大按钮</li>
+              </ul>
+            </div>
+            <div class="atom-card">
+              <strong>辅助说明</strong>
+              <code>helperText / CardHelperText</code>
+              <span>低权重补充信息。用于来源、时间、Agent 名称、上下文说明。</span>
+              <ul>
+                <li>颜色弱于正文</li>
+                <li>不承担主信息</li>
+              </ul>
+            </div>
+            <div class="atom-card">
+              <strong>代码块</strong>
+              <code>codeBlock / CardCodeBlock</code>
+              <span>代码、命令、日志、traceback。等宽字体，可横向滚动。</span>
+              <ul>
+                <li>可带语言和复制入口</li>
+                <li>不要撑宽卡片</li>
+              </ul>
+            </div>
+            <div class="atom-card">
+              <strong>纯文本块</strong>
+              <code>textPanel / CardTextPanel</code>
+              <span>有弱底色的文本容器。用于需要从正文中区隔出来的说明。</span>
+              <ul>
+                <li>比正文段落更强调</li>
+                <li>不是所有正文都需要加框</li>
+              </ul>
+            </div>
+            <div class="atom-card">
+              <strong>Icon + 标题</strong>
+              <code>iconTitle / CardIconTitle</code>
+              <span>图标加短标题。用于小节标题、步骤标题、状态标题。</span>
+              <ul>
+                <li>只放一行核心表达</li>
+                <li>详细解释放后续正文</li>
+              </ul>
+            </div>
+            <div class="atom-card">
+              <strong>Banner 块</strong>
+              <code>statusBanner / CardStatusBanner</code>
+              <span>横幅式反馈。用于授权成功、处理中、警告、轻提醒。</span>
+              <ul>
+                <li>可带图标和副文案</li>
+                <li>不放复杂操作</li>
+              </ul>
+            </div>
+            <div class="atom-card">
+              <strong>操作块</strong>
+              <code>inlineAction / CardInlineAction</code>
+              <span>内容区里的行内对象操作。用于路径、文件、资源项 + 小按钮。</span>
+              <ul>
+                <li>区别于 Footer 主操作</li>
+                <li>按钮仍使用描边样式</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section class="dev-section" aria-label="容器和槽位规则">
+          <h2>结构规则</h2>
+          <div class="rule-grid">
+            <div class="rule-card">
+              <strong>Container</strong>
+              <code>AgentGuiCard</code>
+              <span>白底、8px radius、无左色条；tone 只通过小圆点或轻量状态表达。容器负责 max-width、max-height、overflow 和按钮断点。</span>
+            </div>
+            <div class="rule-card">
+              <strong>Header</strong>
+              <code>title / subtitle / iconAction</code>
+              <span>标题说明“发生了什么”，副标题说明来源或上下文。复杂文案、代码、列表不要塞进 Header。</span>
+            </div>
+            <div class="rule-card">
+              <strong>Content</strong>
+              <code>children / contentType</code>
+              <span>只组合内容原子。正文段落默认不加框；代码、引用、Banner、文本块需要区隔时才加弱容器。</span>
+            </div>
+            <div class="rule-card">
+              <strong>Footer</strong>
+              <code>actions</code>
+              <span>只放底部动作。按钮全部用 outline/ghost 的描边视觉；主次关系通过顺序、文案和轻量状态区分。</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="dev-section" aria-label="响应式和按钮规则">
+          <h2>PC / App 响应式规则</h2>
+          <div class="rule-grid">
+            <div class="rule-card">
+              <strong>App</strong>
+              <code>max-width: 280px</code>
+              <span>按钮始终纵向，填满容器。App 优先保证可读性和首屏多卡密度，不做横向按钮挤压。</span>
+            </div>
+            <div class="rule-card">
+              <strong>PC</strong>
+              <code>max-width: 430px</code>
+              <span>按钮区宽度大于 280px 时横向等宽；小于等于 280px 时纵向等宽。</span>
+            </div>
+            <div class="rule-card">
+              <strong>高度</strong>
+              <code>maxHeight={{ pc, app }}</code>
+              <span>PC 和 App 可分别配置最大高度。Content 内部滚动，Header 和 Footer 保持稳定可见。</span>
+            </div>
+            <div class="rule-card">
+              <strong>按钮数量</strong>
+              <code>actions.length</code>
+              <span>建议 Footer 露出 1-3 个入口；超过 3 个收敛到“更多”。复杂选择放 Content，最终确认放 Footer。</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="dev-section" aria-label="Props 协议">
+          <h2>建议 Props 协议</h2>
+          <p>研发实现时优先暴露稳定语义，不暴露业务侧改样式的逃生口。</p>
+          <div class="dev-code" aria-label="TypeScript 协议">
+            <pre>export type CardTone = "danger" | "warning" | "info" | "success" | "neutral";
+
+export type ContentPrimitive =
+  | "bodyText"
+  | "inlineLink"
+  | "helperText"
+  | "codeBlock"
+  | "textPanel"
+  | "iconTitle"
+  | "statusBanner"
+  | "inlineAction";
+
+export interface AgentGuiCardProps {
+  tone?: CardTone;
+  title: React.ReactNode;
+  subtitle?: React.ReactNode;
+  maxHeight?: { pc?: number; app?: number };
+  collapsible?: boolean;
+  defaultOpen?: boolean;
+  actions?: ActionItem[];
+  children?: React.ReactNode;
+}</pre>
+          </div>
+        </section>
+      </section>
     </main>
 
     <script>
       const body = document.body;
+      const primaryTabs = document.querySelectorAll(".primary-tab");
       const viewportMeter = document.querySelector("#viewportMeter");
       const deviceLabel = document.querySelector("#deviceLabel");
       const stack = document.querySelector("#previewStack");
@@ -1816,6 +2206,16 @@ export interface AgentActionCardProps {
       const labActions = document.querySelector("#labActions");
       const labResult = document.querySelector("#labResult");
       const containerBreakpoint = 280;
+
+      primaryTabs.forEach((tab) => {
+        tab.addEventListener("click", () => {
+          primaryTabs.forEach((item) => {
+            const selected = item === tab;
+            item.setAttribute("aria-selected", String(selected));
+            document.querySelector(`#${item.dataset.tabTarget}`).hidden = !selected;
+          });
+        });
+      });
 
       function setPressed(selector, value) {
         document.querySelectorAll(selector).forEach((button) => {
